@@ -3,6 +3,8 @@ import albumentations as transfrom
 from typing import Any, Dict, Optional, Tuple
 from torch.utils.data import ConcatDataset, DataLoader, Dataset, random_split
 from src.data.components.Dlib import Dlib
+import torch
+
 
 class DlibDataModule(LightningDataModule):
     def __init__(
@@ -35,3 +37,10 @@ class DlibDataModule(LightningDataModule):
         if not self.data_train and not self.data_val and not self.data_test:
             
             dataset = Dlib()
+
+            self.data_train, self.data_val, self.data_test = random_split(
+                dataset=dataset,
+                lengths=self.hparams.train_val_test_split,
+                generator=torch.Generator().manual_seed(42)  )
+
+            
