@@ -22,34 +22,36 @@ class Dlib(Dataset):
         xml_path = \
             r'data/ibug_300W_large_face_landmark_dataset/labels_ibug_300W.xml'
         if not os.path.exists(xml_path):
-            download_data
-            unzip_data
+            download_data()
+            unzip_data()
         else:
             tree = ET.parse(xml_path)
-            self.root = tree.getroot
+            self.root = tree.getroot()
+            
             self.root_dir = root_dir
 
     def __len__(self):
         return len(self.root[2])
 
-    def __getitem__(self, index):
-        index = index.tolist()
+    def __getitem__(self, index: int):
+        if torch.is_tensor(index):
+            index = index.tolist()
 
         image_name = os.path.join(self.root_dir,
-                                  self.root[2][index].attrib["file"])
+                                self.root[2][index].attrib['file'])
 
         image = Image.open(image_name).convert("RGB")
 
         keypoints = []
 
         for kp in self.root[2][index].iter():
-            keypoints.append(kp.attrib.get("x"), kp.attrib.get("y"))
+            keypoints.append([kp.attrib.get("x"), kp.attrib.get("y")])
 
         keypoints = keypoints[1:]
 
         keypoints = np.array(keypoints, dtype=float)
 
-        box_dict = self.root[2][index].attrib
+        box_dict = self.root[2][index][0].attrib
 
         box = [box_dict.get('left'), box_dict.get('top'),
                float(box_dict.get('left'))+float(box_dict.get('width')),
@@ -73,6 +75,7 @@ class Dlib(Dataset):
         plt.scatter(keypoints[:0]*224, keypoints[:, 1]*224, marker='.', c='r')
         plt.savefig('landmarkdrawers.png')
 
+    @staticmethod
     def denormalize(x, mean=IMG_MEAN, std=IMG_STD):
         ten = x.clone().premute(1, 2, 0)
         for t, m, s in zip(ten, mean, std):
@@ -125,4 +128,6 @@ def unzip_data():
 
 
 if __name__ == "__main__":
-    print(1)
+    batch = Dlib()
+    image, keypoints = batch[0]
+    print(image.shape)

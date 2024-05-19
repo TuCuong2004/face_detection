@@ -4,6 +4,10 @@ from typing import Any, Dict, Optional, Tuple
 from torch.utils.data import ConcatDataset, DataLoader, Dataset, random_split
 from src.data.components.Dlib import Dlib
 import torch
+import pyrootutils
+from src.data.components.TransformedDlib import TransformedDlib
+
+pyrootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 
 
 class DlibDataModule(LightningDataModule):
@@ -31,16 +35,61 @@ class DlibDataModule(LightningDataModule):
     @property
     def num_classes(self):
         return 10        
-    
+
     def setup(self, stage: Optional[str] = None):
 
         if not self.data_train and not self.data_val and not self.data_test:
-            
+
             dataset = Dlib()
 
-            self.data_train, self.data_val, self.data_test = random_split(
+            data_train, data_val, data_test = random_split(
                 dataset=dataset,
                 lengths=self.hparams.train_val_test_split,
-                generator=torch.Generator().manual_seed(42)  )
+                generator=torch.Generator().manual_seed(42))
 
-            
+            self.data_train = TransformedDlib(data_train, self.train_transform)
+            self.data_val = TransformedDlib(data_val, self.val_transform)
+            self.data_test = TransformedDlib(data_test, self.val_transform)
+
+    def train_dataloader(self):
+        return DataLoader(
+            self.data_train,
+            batch_size=self.hparams.batch_size,
+            num_workers=self.hparams.num_workers,
+            pin_memory=self.hparams.pin_memory,
+            shuffle=True)
+    
+    def val_dataloader(self):
+        return DataLoader(
+            self.data_val,
+            batch_size=self.hparams.batch_size,
+            num_workers=self.hparams.num_workers,
+            pin_memory=self.hparams.pin_memory,
+            shuffle=False)
+    
+    def test_dataloader(self):
+        return DataLoader(
+            self.data_test,
+            batch_size=self.hparams.batch_size,
+            num_workers=self.hparams.num_workers,
+            pin_memory=self.hparams.pin_memory,
+            shuffle=False)
+    
+    def transfer_batch_to_device(self, batch: Any, device: torch.device) -> Any:
+        return batch.to(device)
+    
+    def teardown(self, stage: Optional[str] = None):
+        """Clean up after fit or test."""
+        pass
+
+    def state_dict(self):
+        """Extra things to save to checkpoint."""
+        return {}
+
+    def load_state_dict(self, state_dict: Dict[str, Any]):
+        """Things to do when loading checkpoint."""
+        pass
+
+    @staticmethod
+    def draw_batch(batch):
+        
