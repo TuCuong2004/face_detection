@@ -129,5 +129,5 @@ def unzip_data():
 
 if __name__ == "__main__":
     batch = Dlib()
-    image, keypoints = batch[0]
-    print(image.shape)
+    image = batch[2]['image']
+    print(np.array(image))

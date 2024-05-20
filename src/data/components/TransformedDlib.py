@@ -7,11 +7,11 @@ import numpy as np
 
 pyrootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 
-from src.data.components import Dlib
+from src.data.components.Dlib import Dlib
 
 
 class TransformedDlib(Dataset):
-    def __init__(self, pre_data=Dlib, transform: Optional[A.Compose] = None):
+    def __init__(self, pre_data: Dlib, transform: Optional[A.Compose] = None):
         self.pre_data = pre_data
         if transform:
             self.transform = transform
@@ -21,12 +21,12 @@ class TransformedDlib(Dataset):
                 A.Normalize(mean=[0.485, 0.456, 0.406],
                             std=[0.229, 0.224, 0.225]),
                 ToTensorV2()
-            ])
+            ], keypoint_params=A.KeypointParams(format='xy', remove_invisible=False))
     
     def __len__(self):
         return len(self.pre_data)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int):
         transformed_data = self.transform(image=np.array(self.pre_data[index]['image']),keypoints=self.pre_data[index]['keypoints'])
         image = transformed_data['image']
         keypoints = (np.array(transformed_data['keypoints']) / image.shape[1:]).astype(np.float32)
@@ -35,8 +35,6 @@ class TransformedDlib(Dataset):
 
 
 if __name__ == '__main__':
-    print(1)
-    batch = TransformedDlib()
+    batch = TransformedDlib(Dlib(), None)
     image, keypoints = batch[0]
-    print(image.shape, keypoints.shape)
     print(1)
