@@ -1,4 +1,4 @@
-_target_: src.data.DlibDataModule.DlibDataModule
+_target_: src.data.dlib_datamodule.DlibDataModule
 # data_dir: ${paths.data_dir}
 data_dir: data/IBUG
 batch_size: 32

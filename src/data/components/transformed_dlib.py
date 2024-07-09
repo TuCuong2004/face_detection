@@ -5,9 +5,10 @@ import pyrootutils
 from albumentations.pytorch import ToTensorV2
 import numpy as np
 
+
 pyrootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 
-from src.data.components.Dlib import Dlib
+from src.data.components.dlib import Dlib
 
 
 class TransformedDlib(Dataset):
@@ -37,4 +38,5 @@ class TransformedDlib(Dataset):
 if __name__ == '__main__':
     batch = TransformedDlib(Dlib(), None)
     image, keypoints = batch[0]
+    print(keypoints.shape)
     print(1)

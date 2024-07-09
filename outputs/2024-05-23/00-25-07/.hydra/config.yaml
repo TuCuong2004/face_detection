@@ -1,27 +1,18 @@
 _target_: src.models.dlib_module.DlibModule
-
 optimizer:
   _target_: torch.optim.Adam
   _partial_: true
   lr: 0.001
   weight_decay: 0.0
-
 scheduler:
   _target_: torch.optim.lr_scheduler.ReduceLROnPlateau
   _partial_: true
   mode: min
   factor: 0.1
   patience: 10
-
 net:
-  _target_: src.models.components.dlib_net.DlibNet
+  _target_: src.models.components.simple_dense_net.SimpleDenseNet
   name: resnet18
-  output_shape: [68, 2]
-
-# net:
-#   _target_: src.models.components.simple_dense_net.SimpleDenseNet
-#   input_size: 150528
-#   lin1_size: 64
-#   lin2_size: 128
-#   lin3_size: 64
-#   output_size: [68, 2]
+  output_shape:
+  - 68
+  - 2

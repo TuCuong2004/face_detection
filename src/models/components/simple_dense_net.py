@@ -11,7 +11,7 @@ class SimpleDenseNet(nn.Module):
         lin1_size: int = 256,
         lin2_size: int = 256,
         lin3_size: int = 256,
-        output_size: int = 10,
+        output_size: tuple = 69*2,
     ) -> None:
         """Initialize a `SimpleDenseNet` module.
 
@@ -36,18 +36,10 @@ class SimpleDenseNet(nn.Module):
             nn.Linear(lin3_size, output_size),
         )
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Perform a single forward pass through the network.
-
-        :param x: The input tensor.
-        :return: A tensor of predictions.
-        """
-        batch_size, channels, width, height = x.size()
-
-        # (batch, 1, width, height) -> (batch, 1*width*height)
-        x = x.view(batch_size, -1)
-
-        return self.model(x)
+    def forward(self, x):
+        af = self.model(x)
+        af = torch.reshape(af, [af.shape[0], self.output_shape[0], self.output_shape[1]])
+        return af
 
 
 if __name__ == "__main__":

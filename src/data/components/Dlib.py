@@ -47,7 +47,7 @@ class Dlib(Dataset):
         for kp in self.root[2][index].iter():
             keypoints.append([kp.attrib.get("x"), kp.attrib.get("y")])
 
-        keypoints = keypoints[1:]
+        keypoints = keypoints[2:]
 
         keypoints = np.array(keypoints, dtype=float)
 
@@ -60,8 +60,8 @@ class Dlib(Dataset):
         box = np.array(box, dtype=float)
 
         #
-        keypoints[:, 0] = keypoints[:, 0] - float(box[0])
-        keypoints[:, 0] = keypoints[:, 0] - float(box[0])
+        keypoints[:, 0] = keypoints[:, 0] - float(box_dict.get('left'))
+        keypoints[:, 1] = keypoints[:, 1] - float(box_dict.get('top')) 
         # do sth
 
         image = image.crop(box=box)
@@ -111,8 +111,7 @@ class Dlib(Dataset):
 
 def download_data():
 
-    url = "http://dlib.net/files/data/\
-        ibug_300W_large_face_landmark_dataset.tar.gz"
+    url = "http://dlib.net/files/data/ibug_300W_large_face_landmark_dataset.tar.gz"
     response = requests.get(url, stream=True)
     with open(r"data/FilerData.taz.gz", mode="wb") as file:
         for chunk in tqdm(response.iter_content(chunk_size=1024)):
@@ -128,6 +127,6 @@ def unzip_data():
 
 
 if __name__ == "__main__":
-    batch = Dlib()
-    image = batch[2]['image']
-    print(np.array(image))
+    print(1)
+    dlib = Dlib()
+    print(dlib[0]['keypoints'].shape)
