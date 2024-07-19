@@ -12,7 +12,7 @@ from src.data.components.dlib import Dlib
 
 
 class TransformedDlib(Dataset):
-    def __init__(self, pre_data: Dlib, transform: Optional[A.Compose] = None):
+    def __init__(self, pre_data: Dlib, transform):
         self.pre_data = pre_data
         if transform:
             self.transform = transform
