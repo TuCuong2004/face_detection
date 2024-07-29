@@ -20,7 +20,7 @@ class Dlib(Dataset):
                  root_dir=r'data/ibug_300W_large_face_landmark_dataset'):
 
         xml_path = \
-            r'data/ibug_300W_large_face_landmark_dataset/labels_ibug_300W.xml'
+            r'data\ibug_300W_large_face_landmark_dataset\labels_ibug_300W.xml'
         if not os.path.exists(xml_path):
             download_data()
             unzip_data()
@@ -123,10 +123,10 @@ def download_data():
 def unzip_data():
 
     with tarfile.open('data\\FilerData.taz.gz', "r:gz") as tar:
-        tar.extractall('data\\FilerData.taz.gz/')
+        tar.extractall('data')
 
 
 if __name__ == "__main__":
     print(1)
     dlib = Dlib()
-    print(dlib[0]['keypoints'].shape)
+    print(dlib[2])
