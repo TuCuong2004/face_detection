@@ -1,0 +1,10 @@
+_target_: src.data.ibug_datamodule.IbugDataModule
+data_dir: "data/ibug/ibug_330w_large_face_landmark_dataset"
+batch_size :  32
+num_workers : 8
+pin_memory:  False
+train_val_test_split: [0.8, 0.1, 0.1]
+
+defaults:
+  - train_transform: default.yaml
+  - val_transform: default.yaml

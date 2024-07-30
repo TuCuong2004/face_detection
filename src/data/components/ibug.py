@@ -31,27 +31,33 @@ class Ibug(Dataset):
 
     def __getitem__(self, index: int):
         box = self.root[2][index]
-        image = Image.open(os.path.join(self.root_dir, self.root[2][index].attrib['file'])).convert('RGB')
+
+        image = Image.open(os.path.join(self.root_dir, self.root[2][index].attrib['file'])).convert("RGB")
+
         box_area = [box[0].attrib['left'], box[0].attrib['top'], 
                         float(box[0].attrib['width']) + float(box[0].attrib['left']), 
                         float(box[0].attrib['top']) + float(box[0].attrib['height'])]
+        
         box_area = np.array(box_area,dtype=float)
+
         image = image.crop(box=box_area)
         # image = np.array(image, dtype=float)
         keypoints = []
 
         for kp in box[0] :
-            keypoints.append([kp.attrib['x'],kp.attrib['y']])
+            keypoints.append([kp.attrib.get('x'),kp.attrib.get('y')])
         
-        keypoints = keypoints[1:]
+        keypoints = keypoints[0:]
+        
         keypoints = np.array(keypoints,dtype=float)
+        
         keypoints[:, 0] = keypoints[:, 0] - box_area[0]
         keypoints[:, 1] = keypoints[:, 1] - box_area[1]
         
-        return { 'keypoints' : keypoints, 'image' : image}
+        return {'image' : image, 'keypoints' : keypoints}
 
 
-        @staticmethod
+    @staticmethod
     def show_keypoints(image, keypoints):
         plt.imshow(image.premute(1, 2, 0))
         plt.scatter(keypoints[:0]*224, keypoints[:, 1]*224, marker='.', c='r')
@@ -104,4 +110,4 @@ def download_data():
             
 if __name__ == "__main__":
     cg = Ibug()
-    print(cg[2])
+    print(cg[0]['keypoints'])

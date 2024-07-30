@@ -4,11 +4,13 @@ from typing import Any, Dict, Optional, Tuple
 import albumentations as A
 from torch.utils.data import Dataset, random_split, DataLoader
 import torch
-from components.ibug import Ibug
-from components.transformed_ibug import TransformedIbug
 from matplotlib import pyplot as plt
 import hydra
-pyrootutils.setup_root(__file__, indicator="project-root",pythonpath=True)
+
+pyrootutils.setup_root(__file__, indicator=".project-root",pythonpath=True)
+
+from src.data.components.ibug import Ibug
+from src.data.components.transformed_ibug import TransformedIbug
 
 class IbugDataModule(LightningDataModule):
     def __init__(
@@ -21,8 +23,11 @@ class IbugDataModule(LightningDataModule):
         val_transform: Optional[A.Compose] = None,
         train_val_test_split: Tuple[int, int, int] = (0.8, 0.1, 0.1),
     ):
-        self.save_hyperparameters
+        super().__init__()
+
+        self.save_hyperparameters(logger=False)
         
+        self.train_val_test_split = train_val_test_split
         self.train_transform = train_transform
         self.val_transform = val_transform
         self.batch_size = batch_size
@@ -37,20 +42,20 @@ class IbugDataModule(LightningDataModule):
     def prepare_data(self):
         pass
 
-    def setup(self, stage: str) -> None:
+    def setup(self, stage: Optional[str] = None) -> None:
         
-        self.pre_data = Ibug
+        self.pre_data = Ibug()
 
         if not self.data_train and not self.data_val and not self.data_test:
             self.data_train, self.data_val, self.data_test = random_split(
-                self.pre_data,
-                self.hparams.train_val_test_split,
-                generator=torch.Generator().manual_seed(42)
+                dataset = self.pre_data,
+                lengths = self.hparams.train_val_test_split,
+                generator = torch.Generator().manual_seed(42)
             )
 
-        self.data_train = TransformedIbug(Dataset = self.data_train, transform = self.train_transform)
-        self.data_val = TransformedIbug(Dataset = self.data_val, transform = self.val_transform)
-        self.data_test = TransformedIbug(Dataset= self.data_test, transform = self.val_transform)
+        self.data_train = TransformedIbug(Dataset =  self.data_train, transform = self.train_transform)
+        self.data_val = TransformedIbug(Dataset =  self.data_val, transform = self.val_transform)
+        self.data_test = TransformedIbug(Dataset = self.data_test, transform = self.val_transform)
     
     def train_dataloader(self) -> DataLoader:
         return DataLoader(
@@ -107,11 +112,18 @@ class IbugDataModule(LightningDataModule):
                 axs[i][j].imshow(images[idx])
                 axs[i][j].scatter(keypoints[idx][:, 0]*224, keypoints[idx][:, 1]*224, s=1, c='r')
                 axs[i][j].axis('off')
-        
+
         plt.show()
 
         plt.savefig('batchDrawers.png')    
     
 
-@hydra.main(version_base=None, config_path='../../configs/data', config_name= 'dlib.yaml')
+@hydra.main(version_base=None, config_path='../../configs/data', config_name= 'ibug.yaml')
+def main(cfg):
+    dm = hydra.utils.instantiate(cfg)
+    dm.setup()
+    batch = next(iter(dm.train_dataloader()))
+    IbugDataModule.drawBatch(batch=batch)
 
+if __name__ == '__main__':
+    main()

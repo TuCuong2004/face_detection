@@ -47,7 +47,7 @@ class Dlib(Dataset):
         for kp in self.root[2][index].iter():
             keypoints.append([kp.attrib.get("x"), kp.attrib.get("y")])
 
-        keypoints = keypoints[2:]
+        keypoints = keypoints[0:]
 
         keypoints = np.array(keypoints, dtype=float)
 
@@ -129,4 +129,4 @@ def unzip_data():
 if __name__ == "__main__":
     print(1)
     dlib = Dlib()
-    print(dlib[2])
+    print(dlib[0]['keypoints'])
