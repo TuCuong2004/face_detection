@@ -59,7 +59,7 @@ class IbugDataModule(LightningDataModule):
     
     def train_dataloader(self) -> DataLoader:
         return DataLoader(
-            bacth_size = self.batch_size,
+            batch_size = self.batch_size,
             num_workers = self.hparams.num_workers,
             dataset = self.data_train,
             pin_memory = self.hparams.pin_memory,

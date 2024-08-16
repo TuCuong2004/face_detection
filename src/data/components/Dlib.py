@@ -39,7 +39,7 @@ class Dlib(Dataset):
 
         image_name = os.path.join(self.root_dir,
                                 self.root[2][index].attrib['file'])
-
+        print(image_name)
         image = Image.open(image_name).convert("RGB")
 
         keypoints = []
@@ -127,6 +127,7 @@ def unzip_data():
 
 
 if __name__ == "__main__":
-    print(1)
-    dlib = Dlib()
-    print(dlib[0]['keypoints'])
+    # print(1)
+    # dlib = Dlib()
+    # print(dlib[0]['keypoints'])
+    print(Image.open('data/ibug_300W_large_face_landmark_dataset/afw/1051618982_1.jpg'))

@@ -1,4 +1,4 @@
-_target_: src.models.dlib_module.DlibModule
+_target_: src.models.iugb_module.DlibModule
 
 optimizer:
   _target_: torch.optim.Adam

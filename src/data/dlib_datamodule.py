@@ -3,9 +3,10 @@ import albumentations as transfrom
 from typing import Any, Dict, Optional, Tuple
 from torch.utils.data import ConcatDataset, DataLoader, Dataset, random_split
 import torch
-import pyrootutils
+
 from matplotlib import pyplot as plt
 import hydra
+import pyrootutils
 pyrootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 
 from src.data.components.transformed_dlib import TransformedDlib
