@@ -1,6 +1,6 @@
 import torch.nn as nn
 
-from spiga.models.cnn.layers import Conv, Deconv, Residual
+from src.models.spiga.cnn.layers import Conv, Deconv, Residual
 
 
 class Hourglass(nn.Module):

@@ -47,7 +47,7 @@ class AddCoordsTh(nn.Module):
         input_tensor: (batch, c, x_dim, y_dim)
         """
         batch_size_tensor = input_tensor.shape[0]
-        xx_channel = self.xx_channel.(repeatbatch_size_tensor, 1, 1, 1)
+        xx_channel = self.xx_channel.repeat(batch_size_tensor, 1, 1, 1)
         yy_channel = self.yy_channel.repeat(batch_size_tensor, 1, 1, 1)
         ret = torch.cat([input_tensor, xx_channel, yy_channel], dim=1)
 

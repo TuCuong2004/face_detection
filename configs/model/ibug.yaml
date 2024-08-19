@@ -1,4 +1,4 @@
-_target_: src.models.iugb_module.DlibModule
+_target_: src.models.ibug_module.IbugModule
 
 optimizer:
   _target_: torch.optim.Adam
@@ -14,6 +14,6 @@ scheduler:
   patience: 10
 
 net:
-  _target_: src.models.components.dlib_net.DlibNet
-  name: resnet18
-  output_shape: [68, 2]
+  _target_: src.models.spiga.spiga.SPIGA
+  # name: resnet18
+  # output_shape: [68, 2]

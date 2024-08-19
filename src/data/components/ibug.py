@@ -13,11 +13,10 @@ from matplotlib.patches import Rectangle
 import json
 import cv2
 from torchvision import transforms
-from ibug_config import AlignConfig
 import pyrootutils
 
 pyrootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
-
+from src.data.components.ibug_config import AlignConfig
 from src.data.components.transformed_ibug import get_transformers
 
 class Ibug(Dataset):
@@ -62,8 +61,6 @@ class Ibug(Dataset):
         else:
             image_cv = self._imgs_dict[index]
 
-        print(1)
-        print(image_cv)
 
         # Some images are B&W. We make sure that any image has three channels.
         if len(image_cv.shape) == 2:
@@ -71,9 +68,12 @@ class Ibug(Dataset):
 
         # Some images have alpha channel
         image_cv = image_cv[:, :, :3]
+        
 
         image_cv = cv2.cvtColor(image_cv, cv2.COLOR_BGR2RGB)
         image = Image.fromarray(image_cv)
+
+        
         
         # ids = self.data[index]['ids']
         # landmarks = self.data[index]['landmarks']
@@ -156,7 +156,7 @@ def get_dataset(data_config, pretreat=None, debug=False):
 
 
 if __name__ == "__main__":
-    config = AlignConfig(database_name="300wpublic", mode="train")
+    config = AlignConfig(database_name="wflw", mode="train")
     config.update({"generate_pose": False, "heatmap2D_norm": False})
     dataset = get_dataset(config, debug=True)
-    print(dataset[0])
+ 

@@ -1,10 +1,12 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import pyrootutils
+pyrootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 
-import spiga.models.gnn.pose_proj as pproj
-from spiga.models.cnn.cnn_multitask import MultitaskCNN
-from spiga.models.gnn.step_regressor import StepRegressor, RelativePositionEncoder
+import src.models.spiga.gnn.pose_proj as pproj
+from src.models.spiga.cnn.cnn_multitask import MultitaskCNN
+from src.models.spiga.gnn.step_regressor import StepRegressor, RelativePositionEncoder
 
 
 class SPIGA(nn.Module):
@@ -163,7 +165,9 @@ class SPIGA(nn.Module):
         dist_wo_self = dist[:, self.diagonal_mask, :].reshape(B, L, -1)
         return dist_wo_self
 
-
+if __name__ == "__main__":
+    model = SPIGA()
+    print(model)
 
 
 
