@@ -8,7 +8,7 @@ pyrootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 from src.data.components.augmentors.utils import rotation_matrix_to_euler
 
 # Model file nomenclature
-model_file_dft = os.path.join('src/data/components/models3D','/mean_face_3D_{num_ldm}.txt')
+model_file_dft = 'src/data/components/models3D'+'/mean_face_3D_{num_ldm}.txt'
 
 
 class PositPose:

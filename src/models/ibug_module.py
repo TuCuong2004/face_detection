@@ -38,7 +38,7 @@ class IbugModule(LightningModule):
         dataset = get_dataset(config, debug=True)
 
 
-        loader_3DM = pretreat.AddModel3D(ldm_ids = np.array(dataset[0]['ids_ldm']),
+        loader_3DM = pretreat.AddModel3D(ldm_ids = dataset[1]['ids_ldm'],
                                          totensor=True)
         # params_3DM = self._data2device(loader_3DM())
         self.model3d = loader_3DM['model3d']
