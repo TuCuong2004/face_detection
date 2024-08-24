@@ -5,8 +5,13 @@ from torchmetrics.regression.mae import MeanAbsoluteError as MAE
 from torchmetrics import MaxMetric, MeanMetric
 import hydra
 import pyrootutils
+import numpy as np
+import copy
 
 pyrootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
+import src.models.spiga.inference.pretreatment as pretreat
+from src.data.components.ibug_config import AlignConfig
+from src.data.components.ibug import get_dataset
 
 class IbugModule(LightningModule):
     def __init__(self,
@@ -28,6 +33,17 @@ class IbugModule(LightningModule):
         self.val_loss = MeanMetric()
         self.test_loss = MeanMetric()
 
+        config = AlignConfig(database_name="wflw", mode="train")
+        config.update({"generate_pose": False, "heatmap2D_norm": False})
+        dataset = get_dataset(config, debug=True)
+
+
+        loader_3DM = pretreat.AddModel3D(ldm_ids = np.array(dataset[0]['ids_ldm']),
+                                         totensor=True)
+        # params_3DM = self._data2device(loader_3DM())
+        self.model3d = loader_3DM['model3d']
+        self.cam_matrix = loader_3DM['cam_matrix']
+        
         self.val_acc_best = MaxMetric()
 
     def forward(self, x: torch.tensor):
@@ -44,26 +60,49 @@ class IbugModule(LightningModule):
     #     loss = self.criterion(predict, y)
     #     return loss 
 
+    def pretreat(self, image, bboxes):
+        crop_bboxes = []
+        crop_images = []
+        for bbox in bboxes:
+            sample = {'image': copy.deepcopy(image),
+                      'bbox': copy.deepcopy(bbox)}
+            sample_crop = self.transforms(sample)
+            crop_bboxes.append(sample_crop['bbox'])
+            crop_images.append(sample_crop['image'])
+
+        # Images to tensor and device
+        batch_images = torch.tensor(np.array(crop_images), dtype=torch.float)
+        batch_images = self._data2device(batch_images)
+        # Batch 3D model and camera intrinsic matrix
+        batch_model3D = self.model3d.unsqueeze(0).repeat(len(bboxes), 1, 1)
+        batch_cam_matrix = self.cam_matrix.unsqueeze(0).repeat(len(bboxes), 1, 1)
+
+        model_inputs = [batch_images, batch_model3D, batch_cam_matrix]
+        return model_inputs, crop_bboxes
+
     def training_step(self, batch):
-        x, y = batch
-        predict = self.forward(x)
-        loss = self.train_loss(self.criterion(y, predict))
-        self.train_acc(predict, y)
-        return loss
+        
+        pretreat(batch['image'], batch['bbox'])
+        predict = self.forward(batch)
+        # loss = self.train_loss(self.criterion(y, predict))
+        # self.train_acc(predict, y)
+        return predict
     
     def validation_step(self, batch):
-        x, y = batch
-        predict = self.forward(x)
-        loss = self.val_loss(self.criterion(y, predict))
-        self.val_acc(predict, y)
-        return loss
+        # x, y = batch
+        pretreat(batch['image'], batch['bbox'])
+        predict = self.forward(batch)
+        # loss = self.val_loss(self.criterion(y, predict))
+        # self.val_acc(predict, y)
+        return predict
     
     def test_step(self, batch):
-        x, y = batch
-        predict = self.forward(x)
-        loss = self.test_loss(self.criterion(y, predict))
-        self.test_acc(predict, y)
-        return loss
+        # x, y = batch
+        pretreat(batch['image'], batch['bbox'])
+        predict = self.forward(batch)
+        # loss = self.test_loss(self.criterion(y, predict))
+        # self.test_acc(predict, y)
+        return predict
     
     def on_validation_epoch_end(self):
         acc = self.val_acc.compute()  # get current val acc
